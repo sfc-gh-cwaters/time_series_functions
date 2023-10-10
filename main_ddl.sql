@@ -911,3 +911,7 @@ import io
 def run(url):
     return url
 ';
+
+
+-- insert the values needed for the subquery tile on the dashboard
+insert into tag_group(group_name, tag_uid) values('MINS', 1), ('MINS', 2);
