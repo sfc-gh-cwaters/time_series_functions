@@ -898,19 +898,6 @@ from interp
 where include = 1
 order by tag_uid, ts 
 ';
-CREATE OR REPLACE FUNCTION "TEST_SF"("URL" VARCHAR(16777216))
-RETURNS VARIANT
-LANGUAGE PYTHON
-RUNTIME_VERSION = '3.8'
-PACKAGES = ('numpy')
-HANDLER = 'run'
-AS '
-import _snowflake
-import json
-import io
-def run(url):
-    return url
-';
 
 
 -- insert the values needed for the subquery tile on the dashboard
