@@ -1,0 +1,46 @@
+CREATE OR REPLACE FUNCTION BOMBARDIER.TS_LOAD.VAL_AVG("V_STARTTIME" TIMESTAMP_NTZ(9), "V_ENDTIME" TIMESTAMP_NTZ(9), "V_FILEID" NUMBER(10,0), "V_VARLIST" VARCHAR(16777216), "V_SAMPLERATE" VARCHAR(10))
+RETURNS TABLE ("TS" TIMESTAMP_NTZ(9), "VAR_ID" NUMBER(10,0), "VAL" NUMBER(38,18), "FILE_ID" NUMBER(10,0))
+LANGUAGE SQL
+AS '   
+   select 
+        timestampadd(''second'', 
+        decode(v_SampleRate, ''S1'', 0, ''S2'', 1, ''S4'', 2, ''S5'', 2, ''S10'', 5, ''S15'', 7, ''S20'', 10, ''S30'', 15, 
+                   ''M1'', 30, ''M2'', 60, ''M5'', 150, ''M10'', 300, ''M15'', 450, ''M20'', 600, ''M30'', 900, 
+                   ''H1'', 1800, ''H2'', 3600, ''H3'', 5400, ''H4'', 7200, ''H6'', 10800, ''H12'', 21600, 0)
+                   , min(ts)) ts, 
+        tv.var_id,
+        avg(val_number) val_number,
+        tv.file_id
+    from bombardier.ts_load.file_var_val tv, bombardier.ts_load.base_second s
+    where file_id = v_fileid
+    and tv.ts between v_starttime and v_endtime
+    and tv.second_index = s.second_index
+    and var_id in (select to_number(trim(value)) from table(split_to_table(v_VARLIST,'','')))
+    group by 
+        tv.file_id,
+        tv.var_id,
+        tv.ds,
+        case v_SampleRate 
+        when ''S1'' then s.SECOND_INDEX
+        when ''S2'' then s.S2
+        when ''S4'' then s.S4
+        when ''S5'' then s.S5
+        when ''S10'' then s.S10
+        when ''S15'' then s.S15
+        when ''S20'' then s.S20
+        when ''S30'' then s.S30
+        when ''M1'' then s.M1
+        when ''M2'' then s.M2
+        when ''M5'' then s.M5
+        when ''M10'' then s.M10
+        when ''M15'' then s.M15
+        when ''M20'' then s.M20
+        when ''M30'' then s.M30
+        when ''H1'' then s.H1
+        when ''H2'' then s.H2
+        when ''H3'' then s.H3
+        when ''H4'' then s.H4
+        when ''H6'' then s.H6
+        when ''H12'' then s.H12 
+        else s.SECOND_INDEX end
+';
