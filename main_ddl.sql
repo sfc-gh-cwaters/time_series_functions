@@ -125,9 +125,7 @@ create or replace TRANSIENT TABLE TAG_VALUE (
 	SECOND_INDEX NUMBER(7,0),
 	MS_INDEX NUMBER(4,0)
 );
-create or replace TABLE TV (
-	A VARCHAR(16777216)
-);
+
 create or replace view TAG_VALUE_DV(
 	TAGNAME,
 	D,
@@ -152,40 +150,7 @@ CREATE OR REPLACE FILE FORMAT CSV_FORMAT
 	NULL_IF = ('NULL', 'null')
 	COMPRESSION = gzip
 ;
-CREATE OR REPLACE PROCEDURE "OUTPUT_MESSAGE"("MESSAGE" VARCHAR(16777216))
-RETURNS VARCHAR(16777216)
-LANGUAGE SQL
-EXECUTE AS OWNER
-AS 'begin
-    insert into tv values(:message);
-    return message||''test'';
-end';
-CREATE OR REPLACE PROCEDURE "REVERSE_LOOP"("ITERATION_LIMIT" NUMBER(38,0))
-RETURNS VARCHAR(16777216)
-LANGUAGE SQL
-EXECUTE AS OWNER
-AS '
-    declare
-        values_of_i varchar default '''';
-    begin
-        for i in reverse 1 to iteration_limit do
-            values_of_i := values_of_i || '' '' || i::varchar;
-        end for;
-        return values_of_i;
-    end;
-';
-CREATE OR REPLACE PROCEDURE "REVERSE_LOOP"("V" VARCHAR(16777216))
-RETURNS VARCHAR(16777216)
-LANGUAGE SQL
-EXECUTE AS OWNER
-AS '
-    begin
-        for i in reverse 1 to 5 do
-            call output_message(:v);
-        end for;
-        return null;
-    end;
-';
+
 CREATE OR REPLACE FUNCTION "TAG_VALUE_LAST_INTERPOLATE"("V_STARTTIME" TIMESTAMP_NTZ(9), "V_ENDTIME" TIMESTAMP_NTZ(9), "V_TAGLIST" VARCHAR(16777216), "V_SAMPLERATE" VARCHAR(10))
 RETURNS TABLE ("TS" TIMESTAMP_NTZ(9), "TAG_UID" NUMBER(38,0), "VAL" NUMBER(38,12))
 LANGUAGE SQL
